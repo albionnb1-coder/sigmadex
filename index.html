@@ -193,6 +193,10 @@ table.htab .ava{width:24px;height:24px;font-size:10px;margin:0}
 .seas{font-size:11px;color:var(--muted);display:block;font-weight:500}
 .pill.shiny{border-color:#d9a21b;color:#a87a00;font-weight:600}
 .shinyblk{border-color:#d9a21b}
+footer.foot{margin-top:24px;padding-top:10px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.5;max-width:none}
+footer.foot details{display:inline}footer.foot summary{display:inline;cursor:pointer;text-decoration:underline;list-style:none}
+footer.foot summary::-webkit-details-marker{display:none}
+footer.foot details[open]{display:block;margin-top:4px}
 .empty{padding:30px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:var(--r)}
 @media (max-width:760px){
   .slots{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -323,7 +327,7 @@ table.htab .ava{width:24px;height:24px;font-size:10px;margin:0}
     </div>
   </section>
 
-  <p class="foot">Tipos e atributos base seguem a franquia oficial (geração atual, com o tipo Fada). O Sigma Project pode ter ajustes próprios — a ficha do Pokémon dentro do jogo é a palavra final. Rotas, XP, respawn, captura e dificuldade vêm da janela Hunts do jogo; caixas (tier) e chance de captura, da Wiki do jogo (lidas em 12/10/2026). Atualizada quando aparece rota nova ou uma hunt é medida no jogo.<br>Projeto de fã, sem fins lucrativos e sem afiliação com Nintendo, Game Freak, The Pokémon Company ou com a equipe do Sigma Project. Pokémon e nomes relacionados são marcas de seus respectivos donos. Código sob licença MIT · <a href="https://github.com/albionnb1-coder/sigmadex" style="color:inherit">código-fonte</a>.</p>
+  <footer class="foot"><span>Dados: franquia oficial + janela Hunts e Wiki do Sigma Project (12/10/2026) — na dúvida, vale a ficha do jogo.</span> · Projeto de fã, sem afiliação com Nintendo, Game Freak, The Pokémon Company ou Sigma Project; Pokémon é marca de seus donos · MIT · <a href="https://github.com/albionnb1-coder/sigmadex" style="color:inherit">código-fonte</a> <details><summary>mais</summary>Tipos e atributos base seguem a franquia oficial (geração atual, com Fada); o Sigma pode ter ajustes próprios. Rotas, XP, respawn, captura e dificuldade vêm da janela Hunts; caixas (tier), chances de captura e shiny vêm da Wiki do jogo. A Sigmadex é atualizada quando aparece rota nova ou uma hunt é medida.</details></footer>
 </div>
 
 <div class="overlay" id="ov" hidden>
