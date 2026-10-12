@@ -623,7 +623,7 @@ function renderDex(){
       <div class="row1">${avatar(p)}<span class="nm">${esc(p.name)}</span><span class="num">#${String(p.n).padStart(3,"0")}</span></div>
       <div class="chips">${p.types.map(t=>chip(t)).join("")}</div>
       <div class="mini" title="PS, Atq, Def, AtqEsp, DefEsp, Vel">${s.map(v=>`<i class="${v===mx?"hi":""}" style="height:${Math.max(8,v/2.55)}%"></i>`).join("")}</div>
-      <div class="meta">${p.team?`<span class="pill mine">seu time · Lv.${p.team.lv}</span>`:""}${p.route?`<span class="pill route">rota Lv.${p.route[0]} · ${p.route[1]} XP</span>`:""}<span class="pill">total ${p.tot}</span>${EV_NEXT[p.name]?`<span class="pill pevo ${evoKind(EV_NEXT[p.name][0].how)}">→ ${esc(EV_NEXT[p.name].map(e=>e.t+" · "+e.how).join(" / "))}</span>`:""}</div>
+      <div class="meta">${p.team?`<span class="pill mine">seu time · Lv.${p.team.lv}</span>`:""}${p.route?`<span class="pill route">rota Lv.${p.route[0]} · ${p.route[1]} XP</span>`:""}<span class="pill">total ${p.tot}</span>${EV_NEXT[p.name]?(EV_NEXT[p.name].length>2?`<span class="pill pevo" title="${esc(EV_NEXT[p.name].map(e=>e.t+" · "+e.how).join(" / "))}">→ ${EV_NEXT[p.name].length} evoluções · ver ficha</span>`:EV_NEXT[p.name].map(e=>`<span class="pill pevo ${evoKind(e.how)}">→ ${esc(e.t+" · "+e.how)}</span>`).join("")):""}</div>
     </button>`}).join("");
   g.querySelectorAll(".card").forEach(c=>c.onclick=()=>openDetail(+c.dataset.n));
 }
