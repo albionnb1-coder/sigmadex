@@ -670,6 +670,7 @@ const STK=["hp","atk","def","spa","spd","spe"],STL={hp:"HP",atk:"ATQ",def:"DEF",
 const NATS={Hardy:[],Docile:[],Serious:[],Bashful:[],Quirky:[],Lonely:["atk","def"],Brave:["atk","spe"],Adamant:["atk","spa"],Naughty:["atk","spd"],
 Bold:["def","atk"],Relaxed:["def","spe"],Impish:["def","spa"],Lax:["def","spd"],Timid:["spe","atk"],Hasty:["spe","def"],Jolly:["spe","spa"],Naive:["spe","spd"],
 Modest:["spa","atk"],Mild:["spa","def"],Quiet:["spa","spe"],Rash:["spa","spd"],Calm:["spd","atk"],Gentle:["spd","def"],Sassy:["spd","spe"],Careful:["spd","spa"]};
+const NAT_ORDER=Object.keys(NATS).sort((a,b)=>a.localeCompare(b));
 const GR=[[31,"Perfeito","g7"],[28,"Excepcional","g6"],[24,"Excelente","g5"],[20,"Ótimo","g4"],[16,"Bom","g3"],[12,"Razoável","g2"],[8,"Medíocre","g1"],[0,"Fraco","g0"]];
 function grade(v){return GR.find(g=>v>=g[0])}
 function ivPlan(p){const k=style(p).k,pr={};
@@ -686,14 +687,14 @@ function natVerdict(p,nat){const pr=ivPlan(p),n=NATS[nat];if(!n||!n.length)retur
 function ivBlock(p){const pr=ivPlan(p),sty=style(p),slow=p.spe<60;
   const rows=STK.map(x=>{const [lab,alvo,v]=PRL[pr[x]];const g=v?grade(v):null;
     return `<div class="ivr"><span class="ivk">${STL[x]}</span><div class="ivbar"><span class="${g?g[2]:"g0"}" style="width:${v?Math.round(v/31*100):6}%"></span></div><b class="ivv">${pr[x]==="X"?"—":(pr[x]==="E"?"31":"20+")}</b><span class="ivp ${pr[x]}">${lab}${x==="spe"&&slow?" · lento":""}</span></div>`}).join("");
-  const natsOk=Object.keys(NATS).filter(n=>natVerdict(p,n).c==="g");
+  const natsOk=NAT_ORDER.filter(n=>natVerdict(p,n).c==="g");
   return `<div class="blk iv"><h3>IVs ideais</h3>
     <div class="ivsum"><span>Alvo: <b>Excelente+</b> nos essenciais</span><span class="ivtag g5">${sty.k}</span></div>
     ${rows}
     <p class="note">Naturezas que ajudam: <b>${natsOk.join(", ")}</b>. ${slow?"Base de VEL baixa: no Sigma, Pokémon lento recarrega devagar — IV de VEL pesa mais nele. ":""}Escala de nota inferida dos prints do jogo (31 Perfeito · 28+ Excepcional · 24+ Excelente · 20+ Ótimo · 16+ Bom · 12+ Razoável).</p>
     <details class="aval"><summary>Avaliar meu exemplar</summary>
       <div class="avgrid">${STK.map(x=>`<label>${STL[x]}<input type="number" min="0" max="31" inputmode="numeric" data-iv="${x}" placeholder="0–31"></label>`).join("")}</div>
-      <div class="avrow"><label>Natureza<select id="avNat"><option value="">—</option>${Object.keys(NATS).map(n=>`<option>${n}</option>`).join("")}</select></label>
+      <div class="avrow"><label>Natureza<select id="avNat"><option value="">—</option>${NAT_ORDER.map(n=>`<option>${n}</option>`).join("")}</select></label>
       <label>Raridade<select id="avRar"><option value="">—</option><option>Comum</option><option>Incomum</option><option>Raro</option><option>Épico</option><option>Lendário</option></select></label></div>
       <div id="avOut" class="avout"><p class="note">Copie os IVs da ficha do jogo (aba IVS) — o resultado aparece na hora.</p></div>
     </details></div>`}
@@ -792,7 +793,7 @@ function calcRun(){const c=calcRead();const ev=document.getElementById("cEval"),
   try{localStorage.setItem("sigmadex-calc",JSON.stringify({n:document.getElementById("cName").value,lv:document.getElementById("cLv").value,r:c.rar,nat:c.nat,iv:c.iv,g:calcSt.g}))}catch(e){}
   if(!c.p){ev.innerHTML=`<p class="note">Escolha um Pokémon válido.</p>`;hu.innerHTML=`<p class="note">Escolha o Pokémon e o nível.</p>`;return}
   let score=70;
-  if(c.filled<6){ev.innerHTML=`<div class="chips">${c.p.types.map(t=>chip(t)).join("")}<span class="pill">${style(c.p).k}</span></div><p class="note">Preencha os 6 IVs (${c.filled}/6) para a nota. Naturezas ideais: <b>${Object.keys(NATS).filter(n=>natVerdict(c.p,n).c==="g").join(", ")}</b>.</p>`}
+  if(c.filled<6){ev.innerHTML=`<div class="chips">${c.p.types.map(t=>chip(t)).join("")}<span class="pill">${style(c.p).k}</span></div><p class="note">Preencha os 6 IVs (${c.filled}/6) para a nota. Naturezas ideais: <b>${NAT_ORDER.filter(n=>natVerdict(c.p,n).c==="g").join(", ")}</b>.</p>`}
   else{const r=avalResult(c.p,c.iv,c.nat,c.rar);score=r.score;ev.innerHTML=`<div class="chips">${c.p.types.map(t=>chip(t)).join("")}</div>`+r.html}
   if(!c.lv){hu.innerHTML=`<p class="note">Informe o nível para ranquear as hunts.</p>`;return}
   const list=huntRank(c.p,c.lv,c.rar,score,calcSt.g,document.getElementById("cHard").checked);
@@ -804,7 +805,7 @@ function calcRun(){const c=calcRead();const ev=document.getElementById("cEval"),
      ${MEAS[h.nm]?`<div class="hmeas">Medido: ${MEAS[h.nm]}</div>`:""}</div></li>`).join("")}</ol>`
    :`<p class="note">Nenhuma rota conhecida dentro do nível seguro. Marque “incluir rotas acima do nível seguro”.</p>`}
 (function initCalc(){document.getElementById("cIvs").innerHTML=STK.map(x=>`<label>${STL[x]}<input type="number" min="0" max="31" inputmode="numeric" data-civ="${x}" placeholder="0–31"></label>`).join("");
-  document.getElementById("cNat").innerHTML+=Object.keys(NATS).map(n=>`<option>${n}</option>`).join("");
+  document.getElementById("cNat").innerHTML+=NAT_ORDER.map(n=>`<option>${n}</option>`).join("");
   document.querySelectorAll("#cGoal button").forEach(b=>b.onclick=()=>{calcSt.g=b.dataset.g;document.querySelectorAll("#cGoal button").forEach(x=>x.setAttribute("aria-pressed",x===b));calcRun()});
   document.getElementById("cClear").onclick=()=>{["cName","cLv"].forEach(i=>document.getElementById(i).value="");["cRar","cNat"].forEach(i=>document.getElementById(i).value="");document.querySelectorAll("#cIvs input").forEach(i=>i.value="");calcRun()};
   document.getElementById("cOpen").onclick=()=>{const p=BYNAME[document.getElementById("cName").value.trim().toLowerCase()];if(p)openDetail(p.n)};
