@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Sigmadex — Pokédex de consulta para o Sigma Project: atributos, tipos, evoluções, IVs ideais, comparador e calculadora de hunts."><meta name="theme-color" content="#c42f3a"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23c42f3a%22/%3E%3Ctext x=%2232%22 y=%2246%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22Arial%22 font-weight=%22bold%22%3E%CE%A3%3C/text%3E%3C/svg%3E">
 <title>Sigmadex</title>
+<script>(function(){var t="light";try{t=localStorage.getItem("sigmadex-theme")||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t)})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
 /* Layout: ferramenta de consulta. Barra de abas fixa no topo, filtros, grade de fichas; detalhe abre em painel sobreposto. */
 :root{
-  --bg:#eef0f3; --panel:#ffffff; --panel2:#f6f7f9; --line:#d9dde4; --fg:#161a21; --muted:#5d6675;
+  --bg:#ffffff; --panel:#ffffff; --panel2:#f3f5f8; --line:#d9dde4; --fg:#161a21; --muted:#5d6675;
   --accent:#c42f3a; --accent-ink:#ffffff; --good:#1d7a45; --good-bg:#dcf1e4; --bad:#b0303a; --bad-bg:#f8dfe1; --zero-bg:#1b1f27; --zero-fg:#c9ced8;
   --display:"Saira Condensed","Arial Narrow",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
   --r:10px;
@@ -30,6 +31,7 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;backgroun
 .ball{width:22px;height:22px;border-radius:50%;background:linear-gradient(var(--accent) 0 46%,var(--fg) 46% 54%,var(--panel) 54%);border:2px solid var(--fg);position:relative}
 .ball::after{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--panel);border:2px solid var(--fg)}
 .brand small{font-family:var(--body);font-weight:500;font-size:13px;color:var(--muted);letter-spacing:0}
+.themebtn{font:inherit;font-size:13px;background:var(--panel);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:6px 12px;cursor:pointer;margin-bottom:10px;white-space:nowrap}
 nav.tabs{display:flex;gap:4px;margin-left:auto}
 nav.tabs button{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.6px;text-transform:uppercase;background:none;border:0;color:var(--muted);padding:8px 14px 10px;border-bottom:3px solid transparent;cursor:pointer}
 nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
@@ -188,6 +190,7 @@ table.tc tr:hover td,table.tc td.colhl{outline:1px solid var(--muted)}
       <button role="tab" id="tab-tipos" aria-selected="false" data-view="tipos">Tipos</button>
       <button role="tab" id="tab-calc" aria-selected="false" data-view="calc">Calculadora</button>
     </nav>
+    <button class="themebtn" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro"></button>
   </div>
 </header>
 
@@ -827,6 +830,8 @@ function renderCmp(){
 
 renderDex();
 </script>
+<script>(function(){var b=document.getElementById("themeBtn");function lab(){var d=document.documentElement.getAttribute("data-theme")==="dark";b.textContent=d?"☀ claro":"☾ escuro"}
+b.onclick=function(){var n=document.documentElement.getAttribute("data-theme")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",n);try{localStorage.setItem("sigmadex-theme",n)}catch(e){}lab()};lab()})();</script>
 
 </body>
 </html>
