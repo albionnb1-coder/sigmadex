@@ -184,6 +184,13 @@ table.tc tr:hover td,table.tc td.colhl{outline:1px solid var(--muted)}
 .hb{border:1px solid var(--line);border-radius:8px;padding:6px 4px;text-align:center;display:flex;flex-direction:column;gap:2px}
 .hb b{font-family:var(--mono);font-size:14px}
 @media (max-width:520px){.hgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hballs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+table.htab td,table.htab th{font-size:13.5px;padding:8px 10px}
+table.htab thead th{font-family:var(--body);font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap}
+table.htab thead th[aria-sort]{color:var(--fg)}
+table.htab td:first-child{color:var(--fg);font-weight:600}
+table.htab .go{background:none;border:0;font:inherit;color:inherit;cursor:pointer;padding:0;text-align:left;display:inline-flex;align-items:center;gap:6px}
+table.htab .ava{width:24px;height:24px;font-size:10px;margin:0}
+.seas{font-size:11px;color:var(--muted);display:block;font-weight:500}
 .empty{padding:30px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:var(--r)}
 @media (max-width:760px){
   .slots{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -203,6 +210,7 @@ table.tc tr:hover td,table.tc td.colhl{outline:1px solid var(--muted)}
       <button role="tab" id="tab-dex" aria-selected="true" data-view="dex">Pokédex</button>
       <button role="tab" id="tab-cmp" aria-selected="false" data-view="cmp">Comparar</button>
       <button role="tab" id="tab-tipos" aria-selected="false" data-view="tipos">Tipos</button>
+      <button role="tab" id="tab-hunts" aria-selected="false" data-view="hunts">Hunts</button>
       <button role="tab" id="tab-calc" aria-selected="false" data-view="calc">Calculadora</button>
     </nav>
     <button class="themebtn" id="themeBtn" type="button" aria-label="Alternar tema claro/escuro"></button>
@@ -281,6 +289,20 @@ table.tc tr:hover td,table.tc td.colhl{outline:1px solid var(--muted)}
         <p class="note">Estimativa: duelo de tipos (golpe do tipo dele × golpe do tipo da rota), distância de nível e XP base da rota. “Medido” = resultado real que lemos na janela Análise. Rotas com XP “?” usam valor estimado pelo nível.</p>
       </div>
     </div>
+  </section>
+  <section class="view" id="view-hunts" hidden>
+    <h2 class="sec">Hunts</h2>
+    <p class="hint">Rotas de Kanto e sazonais lidas na janela Hunts do jogo (Johto entra quando abrir). Toque no título de uma coluna para ordenar; toque na espécie para abrir a ficha.</p>
+    <div class="filters">
+      <input type="search" id="hq" placeholder="Buscar rota (ex.: dragonite)" autocomplete="off">
+      <select id="hlv" aria-label="Nível da rota"><option value="">Todos os níveis</option></select>
+      <select id="hcap" aria-label="Captura"><option value="">Qualquer captura</option><option>Média</option><option>Difícil</option><option>Severa</option><option>Extrema</option></select>
+      <select id="hball" aria-label="Ball da coluna de chance"><option value="2">Chance com Great</option><option value="1">Chance com Poke</option><option value="3">Chance com Super</option><option value="4" selected>Chance com Ultra</option><option value="5">Chance com Sigma</option></select>
+      <label class="chk" style="margin:0"><input type="checkbox" id="hseas"> só sazonais</label>
+    </div>
+    <p class="count" id="hcount"></p>
+    <div class="tblwrap"><table class="cmp htab" id="htab"></table></div>
+    <p class="note"><b>XP</b> = por abate. <b>Respawn</b> = rapidez com que a rota repõe os selvagens (menor = mais abates por hora). <b>Captura</b> = rótulo do jogo. <b>Dificuldade</b> = multiplicador do quanto a rota bate em você. <b>Chance</b> = % por ball sem bônus, pela conta da Wiki do jogo (o selo de raridade do corpo reduz; eventos de captura aumentam).</p>
   </section>
   <section class="view" id="view-tipos" hidden>
     <h2 class="sec">Tabela de tipos</h2>
@@ -617,9 +639,9 @@ function save(view){try{localStorage.setItem("sigmadex",JSON.stringify({cmp:st.c
 /* ---------- abas ---------- */
 let current="dex";
 function show(v){current=v;document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v));
-  ["dex","cmp","tipos","calc"].forEach(k=>document.getElementById("view-"+k).hidden=k!==v);if(v==="cmp")renderCmp();save(v);window.scrollTo(0,0)}
+  ["dex","cmp","tipos","hunts","calc"].forEach(k=>document.getElementById("view-"+k).hidden=k!==v);if(v==="cmp")renderCmp();save(v);window.scrollTo(0,0)}
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>show(b.dataset.view));
-if(/^#(dex|cmp|tipos|calc)$/.test(location.hash))setTimeout(()=>show(location.hash.slice(1)),0);
+if(/^#(dex|cmp|tipos|hunts|calc)$/.test(location.hash))setTimeout(()=>show(location.hash.slice(1)),0);
 
 /* ---------- pokédex ---------- */
 const tf=document.getElementById("tf");
@@ -763,7 +785,6 @@ function openDetail(n){const p=DEX[n-1];lastFocus=document.activeElement;
     <a class="extlink" href="https://pokemondb.net/pokedex/${slug(p.name)}" target="_blank" rel="noopener noreferrer">ver imagem oficial ↗</a>
     <div class="chips">${p.types.map(t=>chip(t)).join("")}${p.team?`<span class="pill mine">seu time · Lv.${p.team.lv} · ${p.team.rar} · ${p.team.nat}</span>`:""}${p.route?`<span class="pill route">rota Lv.${p.route[0]} · ${p.route[1]} XP</span>`:""}</div>
 
-    ${huntBlock(p)}
     ${evoBlock(p)}
 
     <div class="blk"><h3>Atributos base</h3>
@@ -836,9 +857,30 @@ function calcRun(){const c=calcRead();const ev=document.getElementById("cEval"),
      <span class="hrank">${i+1}</span>${avatar(h.q)}
      <div class="hmain"><div class="hname">${esc(h.nm)} <span class="num">rota Lv.${h.rl}${EST_LV[h.nm]?"?":""}</span></div>
      <div class="chips">${h.q.types.map(t=>chip(t)).join("")}<span class="mult ${multCls(h.off)}">bate ${multTxt(h.off)}</span><span class="mult ${multCls(h.inn===0?0:(h.inn>=2?.5:h.inn<=.5?2:1))}">leva ${multTxt(h.inn)}</span></div>
-     <div class="hmeta">${h.gap>0?`${h.gap} níveis acima`:h.gap<0?`${-h.gap} níveis abaixo`:"mesmo nível"} · XP base ${h.xp}${ROUTES[h.nm][1]==="?"?" (est.)":""}${h.risky?` · <b class="bad">arriscado: gasta poção</b>`:""}</div>
+     <div class="hmeta">${h.gap>0?`${h.gap} níveis acima`:h.gap<0?`${-h.gap} níveis abaixo`:"mesmo nível"} · XP ${h.xp}${HUNTS[h.nm]?` · respawn ${HUNTS[h.nm][2]} · captura ${HUNTS[h.nm][3]} (Ultra ${pctTxt(capPct(h.nm,4)||0)}%)`:""}${HUNTS[h.nm]&&HUNTS[h.nm][6]?` · ⏰ ${HUNTS[h.nm][6]}`:""}${h.risky?` · <b class="bad">arriscado: gasta poção</b>`:""}</div>
      ${MEAS[h.nm]?`<div class="hmeas">Medido: ${MEAS[h.nm]}</div>`:""}</div></li>`).join("")}</ol>`
    :`<p class="note">Nenhuma rota conhecida dentro do nível seguro. Marque “incluir rotas acima do nível seguro”.</p>`}
+
+/* ---------- aba Hunts ---------- */
+const hst={k:"lv",dir:1};
+(function initHunts(){const lvs=[...new Set(Object.values(HUNTS).map(h=>h[0]))].sort((a,b)=>a-b);
+  document.getElementById("hlv").innerHTML+=lvs.map(l=>`<option value="${l}">Lv.${l}</option>`).join("");
+  ["hq","hlv","hcap","hball","hseas"].forEach(id=>document.getElementById(id).addEventListener("input",renderHunts));renderHunts()})();
+function renderHunts(){const q=document.getElementById("hq").value.trim().toLowerCase(),lv=document.getElementById("hlv").value,cp=document.getElementById("hcap").value,
+  ball=+document.getElementById("hball").value,se=document.getElementById("hseas").checked,bn=BALLS.find(b=>b[1]===ball)[0];
+  let rows=Object.entries(HUNTS).map(([nm,h])=>({nm,lv:h[0],xp:h[1],rs:h[2],cp:h[3],df:h[4],rr:h[5],obs:h[6],ch:capPct(nm,ball)||0,p:BYNAME[nm.toLowerCase()]}))
+    .filter(r=>(!q||r.nm.toLowerCase().includes(q))&&(!lv||r.lv===+lv)&&(!cp||r.cp===cp)&&(!se||r.obs));
+  const CPO={"Média":1,"Difícil":2,"Severa":3,"Extrema":4};
+  const key={nm:r=>r.nm,lv:r=>r.lv,xp:r=>r.xp,rs:r=>r.rs,cp:r=>CPO[r.cp],df:r=>r.df,ch:r=>r.ch};
+  rows.sort((a,b)=>{const x=key[hst.k](a),y=key[hst.k](b);return (x<y?-1:x>y?1:0)*hst.dir||a.lv-b.lv||a.nm.localeCompare(b.nm)});
+  const cols=[["nm","Rota"],["lv","Nível"],["xp","XP"],["rs","Respawn"],["cp","Captura"],["df","Dificuldade"],["ch","Chance "+bn]];
+  document.getElementById("hcount").textContent=`${rows.length} de ${Object.keys(HUNTS).length} rotas`;
+  document.getElementById("htab").innerHTML=`<thead><tr>${cols.map(([k,l])=>`<th data-k="${k}"${hst.k===k?` aria-sort="${hst.dir>0?"ascending":"descending"}"`:""}>${l}${hst.k===k?(hst.dir>0?" ▲":" ▼"):""}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>
+    <td><button class="go" data-n="${r.p.n}">${avatar(r.p)}<span>${esc(r.nm)}${r.obs?`<span class="seas">⏰ ${esc(r.obs)}</span>`:""}</span></button></td>
+    <td>${r.lv}</td><td>${r.xp.toLocaleString("pt-BR")}</td><td>${r.rs}</td><td class="txt"><b class="cap ${r.cp.normalize("NFD").replace(/[^a-z]/gi,"").toLowerCase()}">${r.cp}</b></td>
+    <td>×${String(r.df).replace(".",",")}</td><td>${pctTxt(r.ch)}%</td></tr>`).join("")}</tbody>`;
+  document.querySelectorAll("#htab th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(hst.k===k)hst.dir*=-1;else{hst.k=k;hst.dir=(k==="xp"||k==="ch")?-1:1}renderHunts()});
+  document.querySelectorAll("#htab .go").forEach(b=>b.onclick=()=>openDetail(+b.dataset.n));}
 (function initCalc(){document.getElementById("cIvs").innerHTML=STK.map(x=>`<label>${STL[x]}<input type="number" min="0" max="31" inputmode="numeric" data-civ="${x}" placeholder="0–31"></label>`).join("");
   document.getElementById("cNat").innerHTML+=NAT_ORDER.map(n=>`<option>${n}</option>`).join("");
   document.querySelectorAll("#cGoal button").forEach(b=>b.onclick=()=>{calcSt.g=b.dataset.g;document.querySelectorAll("#cGoal button").forEach(x=>x.setAttribute("aria-pressed",x===b));calcRun()});
