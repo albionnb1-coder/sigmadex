@@ -191,6 +191,8 @@ table.htab td:first-child{color:var(--fg);font-weight:600}
 table.htab .go{background:none;border:0;font:inherit;color:inherit;cursor:pointer;padding:0;text-align:left;display:inline-flex;align-items:center;gap:6px}
 table.htab .ava{width:24px;height:24px;font-size:10px;margin:0}
 .seas{font-size:11px;color:var(--muted);display:block;font-weight:500}
+.pill.shiny{border-color:#d9a21b;color:#a87a00;font-weight:600}
+.shinyblk{border-color:#d9a21b}
 .empty{padding:30px;text-align:center;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:var(--r)}
 @media (max-width:760px){
   .slots{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -226,6 +228,10 @@ table.htab .ava{width:24px;height:24px;font-size:10px;margin:0}
         <button id="rg-k" data-rg="k" aria-pressed="false">Kanto</button>
         <button id="rg-j" data-rg="j" aria-pressed="false">Johto</button>
       </div>
+      <div class="seg" role="group" aria-label="Forma">
+        <button id="fm-n" data-fm="n" aria-pressed="true">Normal</button>
+        <button id="fm-s" data-fm="s" aria-pressed="false">✦ Shiny</button>
+      </div>
       <select id="extra" aria-label="Mostrar">
         <option value="all">Todas as espécies</option>
         <option value="route">Só com rota conhecida</option>
@@ -240,6 +246,7 @@ table.htab .ava{width:24px;height:24px;font-size:10px;margin:0}
         <option value="xp">Ordem: XP da rota</option>
         <option value="cap">Ordem: mais fácil de capturar</option>
         <option value="resp">Ordem: respawn mais rápido</option>
+        <option value="shiny">Ordem: shiny mais raro</option>
       </select>
     </div>
     <div class="typefilter" id="tf" aria-label="Filtrar por tipo"></div>
@@ -302,7 +309,7 @@ table.htab .ava{width:24px;height:24px;font-size:10px;margin:0}
     </div>
     <p class="count" id="hcount"></p>
     <div class="tblwrap"><table class="cmp htab" id="htab"></table></div>
-    <p class="note"><b>XP</b> = por abate. <b>Respawn</b> = rapidez com que a rota repõe os selvagens (menor = mais abates por hora). <b>Captura</b> = rótulo do jogo. <b>Dificuldade</b> = multiplicador do quanto a rota bate em você. <b>Chance</b> = % por ball sem bônus, pela conta da Wiki do jogo (o selo de raridade do corpo reduz; eventos de captura aumentam).</p>
+    <p class="note"><b>XP</b> = por abate. <b>Respawn</b> = rapidez com que a rota repõe os selvagens (menor = mais abates por hora). <b>Captura</b> = rótulo do jogo. <b>Dificuldade</b> = multiplicador do quanto a rota bate em você. <b>Shiny</b> = encontro cru (1 a cada N) e caixa do shiny; shiny só sai com Master Ball. <b>Chance</b> = % por ball sem bônus, pela conta da Wiki do jogo (o selo de raridade do corpo reduz; eventos de captura aumentam).</p>
   </section>
   <section class="view" id="view-tipos" hidden>
     <h2 class="sec">Tabela de tipos</h2>
@@ -608,6 +615,11 @@ const HUNTS={"Bellsprout":[1,31,16,"Média",1,"Abundante",""],"Caterpie":[1,31,1
 const ROUTES=Object.fromEntries(Object.entries(HUNTS).map(([k,v])=>[k,[v[0],v[1]]]));
 // caixa (tier) da forma normal, lida na Wiki do jogo (Tierlist de espécies) em 12/10/2026
 const TIER={"Bellsprout":"7","Caterpie":"7","Ditto":"7","Geodude":"6","Magikarp":"7","Oddish":"7","Paras":"7","Pidgey":"7","Poliwag":"6","Rattata":"7","Weedle":"7","Abra":"6","Diglett":"6","Doduo":"6","Ekans":"6","Exeggcute":"6","Goldeen":"6","Grimer":"6","Horsea":"6","Kakuna":"6","Koffing":"6","Krabby":"6","Magnemite":"6","Mankey":"6","Metapod":"6","Nidoran Female":"6","Nidoran Male":"6","Shellder":"6","Slowpoke":"6","Spearow":"7","Tentacool":"6","Voltorb":"6","Zubat":"7","Bulbasaur":"6","Charmander":"6","Cubone":"6","Eevee":"6","Gastly":"6","Kabuto":"6","Machop":"6","Meowth":"6","Omanyte":"6","Pidgeotto":"5","Ponyta":"6","Psyduck":"6","Sandshrew":"6","Seel":"6","Squirtle":"6","Staryu":"6","Venonat":"6","Vulpix":"6","Beedrill":"5","Butterfree":"5","Dratini":"5","Drowzee":"6","Gloom":"5","Growlithe":"6","Nidorina":"5","Nidorino":"5","Poliwhirl":"5","Primeape":"4","Raticate":"5","Rhyhorn":"6","Weepinbell":"5","Arbok":"4","Charmeleon":"5","Clefairy":"6","Dugtrio":"4","Electrode":"4","Golbat":"5","Graveler":"5","Ivysaur":"5","Jigglypuff":"6","Machoke":"5","Porygon":"5","Wartortle":"5","Farfetchd":"5","Fearow":"5","Haunter":"5","Kadabra":"5","Marowak":"4","Parasect":"5","Persian":"4","Seadra":"5","Seaking":"4","Tangela":"4","Chansey":"4","Cloyster":"4","Dewgong":"4","Dodrio":"4","Hitmonchan":"4","Hitmonlee":"4","Hypno":"4","Kingler":"4","Lickitung":"4","Onix":"4","Pikachu":"5","Sandslash":"4","Slowbro":"5","Tauros":"3","Venomoth":"4","Victreebel":"4","Vileplume":"4","Weezing":"4","Blastoise":"3","Charizard":"3","Clefable":"4","Dragonair":"4","Flareon":"3","Golduck":"4","Golem":"3","Jolteon":"3","Kabutops":"3","Kangaskhan":"3","Machamp":"3","Magneton":"3","Mr. Mime":"3","Muk":"3","Nidoking":"3","Nidoqueen":"3","Omastar":"2","Pidgeot":"3","Poliwrath":"3","Raichu":"3","Rapidash":"3","Rhydon":"3","Starmie":"4","Tentacruel":"3","Vaporeon":"3","Venusaur":"3","Wigglytuff":"4","Aerodactyl":"1","Alakazam":"2","Arcanine":"2","Dragonite":"2","Electabuzz":"2","Exeggutor":"3","Gengar":"2","Gyarados":"2","Jynx":"2","Lapras":"2","Magmar":"2","Ninetales":"3","Pinsir":"3","Scyther":"3","Snorlax":"2","Articuno":"S","Mew":"U","Mewtwo":"U","Moltres":"S","Zapdos":"S","Chinchou":"6","Hoppip":"6","Ledyba":"6","Pineco":"7","Remoraid":"6","Sentret":"7","Slugma":"6","Smeargle":"2","Spinarak":"6","Sunkern":"7","Swinub":"6","Togepi":"6","Unown":"6","Chikorita":"6","Cleffa":"7","Cyndaquil":"6","Dunsparce":"5","Elekid":"6","Hoothoot":"7","Houndour":"6","Igglybuff":"7","Larvitar":"6","Magby":"6","Mareep":"6","Marill":"6","Natu":"6","Phanpy":"6","Pichu":"6","Skiploom":"5","Smoochum":"6","Snubbull":"6","Sunflora":"5","Teddiursa":"5","Totodile":"6","Tyrogue":"5","Wooper":"6","Aipom":"6","Ariados":"4","Azumarill":"4","Bayleef":"5","Bellossom":"4","Corsola":"5","Croconaw":"5","Delibird":"4","Espeon":"2","Flaaffy":"5","Furret":"4","Gligar":"5","Hitmontop":"4","Jumpluff":"4","Ledian":"4","Murkrow":"5","Noctowl":"4","Pupitar":"4","Quagsire":"4","Quilava":"5","Qwilfish":"4","Shuckle":"5","Sneasel":"4","Stantler":"4","Umbreon":"2","Yanma":"5","Ampharos":"3","Crobat":"3","Donphan":"3","Feraligatr":"3","Forretress":"3","Girafarig":"3","Granbull":"3","Lanturn":"3","Magcargo":"3","Meganium":"3","Miltank":"3","Octillery":"4","Piloswine":"3","Politoed":"4","Porygon2":"3","Togetic":"4","Typhlosion":"3","Xatu":"3","Blissey":"2","Heracross":"3","Houndoom":"2","Kingdra":"2","Mantine":"3","Misdreavus":"3","Scizor":"2","Skarmory":"2","Slowking":"2","Steelix":"2","Sudowoodo":"2","Tyranitar":"2","Ursaring":"2","Wobbuffet":"2","Celebi":"U","Entei":"U","Ho-Oh":"U","Lugia":"U","Raikou":"U","Suicune":"U"};
+// caixa da forma SHINY (Wiki do jogo, Tierlist + Shiny + Chances, lidas em 12/10/2026)
+const STIER={"Bellsprout":"5","Caterpie":"6","Ditto":"7","Geodude":"5","Magikarp":"6","Oddish":"6","Paras":"5","Pidgey":"6","Poliwag":"5","Rattata":"6","Weedle":"6","Abra":"5","Diglett":"5","Doduo":"5","Ekans":"5","Exeggcute":"5","Goldeen":"5","Grimer":"5","Horsea":"5","Kakuna":"5","Koffing":"5","Krabby":"5","Magnemite":"5","Mankey":"5","Metapod":"5","Nidoran Female":"5","Nidoran Male":"5","Shellder":"5","Slowpoke":"5","Spearow":"6","Tentacool":"5","Voltorb":"5","Zubat":"5","Bulbasaur":"5","Charmander":"5","Cubone":"5","Eevee":"5","Gastly":"5","Kabuto":"5","Machop":"5","Meowth":"5","Omanyte":"5","Pidgeotto":"4","Ponyta":"5","Psyduck":"5","Sandshrew":"5","Seel":"5","Squirtle":"5","Staryu":"5","Venonat":"5","Vulpix":"5","Beedrill":"4","Butterfree":"4","Dratini":"4","Drowzee":"5","Gloom":"4","Growlithe":"5","Nidorina":"4","Nidorino":"4","Poliwhirl":"4","Primeape":"3","Raticate":"4","Rhyhorn":"5","Weepinbell":"4","Arbok":"3","Charmeleon":"4","Clefairy":"5","Dugtrio":"3","Electrode":"3","Golbat":"4","Graveler":"4","Ivysaur":"4","Jigglypuff":"5","Machoke":"4","Porygon":"4","Wartortle":"4","Farfetchd":"1","Fearow":"3","Haunter":"4","Kadabra":"4","Marowak":"1","Parasect":"4","Persian":"2","Seadra":"4","Seaking":"3","Tangela":"2","Chansey":"3","Cloyster":"3","Dewgong":"3","Dodrio":"1","Hitmonchan":"1","Hitmonlee":"1","Hypno":"2","Kingler":"3","Lickitung":"3","Onix":"3","Pikachu":"4","Sandslash":"3","Slowbro":"4","Tauros":"U","Venomoth":"2","Victreebel":"3","Vileplume":"3","Weezing":"3","Blastoise":"1","Charizard":"1","Clefable":"3","Dragonair":"L","Flareon":"1","Golduck":"3","Golem":"1","Jolteon":"1","Kabutops":"1","Kangaskhan":"S","Machamp":"U","Magneton":"2","Mr. Mime":"S","Muk":"1","Nidoking":"1","Nidoqueen":"1","Omastar":"1","Pidgeot":"1","Poliwrath":"1","Raichu":"1","Rapidash":"1","Rhydon":"2","Starmie":"2","Tentacruel":"1","Vaporeon":"1","Venusaur":"1","Wigglytuff":"2","Aerodactyl":"L","Alakazam":"L","Arcanine":"S","Dragonite":"M","Electabuzz":"L","Exeggutor":"2","Gengar":"L","Gyarados":"L","Jynx":"1","Lapras":"1","Magmar":"L","Ninetales":"1","Pinsir":"S","Scyther":"S","Snorlax":"L","Articuno":"C","Mew":"C","Mewtwo":"C","Moltres":"C","Zapdos":"C","Chinchou":"5","Hoppip":"5","Ledyba":"5","Pineco":"5","Remoraid":"5","Sentret":"5","Slugma":"5","Smeargle":"1","Spinarak":"5","Sunkern":"5","Swinub":"5","Togepi":"5","Unown":"5","Chikorita":"5","Cleffa":"6","Cyndaquil":"5","Dunsparce":"4","Elekid":"5","Hoothoot":"5","Houndour":"5","Igglybuff":"6","Larvitar":"5","Magby":"5","Mareep":"5","Marill":"5","Natu":"5","Phanpy":"5","Pichu":"5","Skiploom":"4","Smoochum":"5","Snubbull":"5","Sunflora":"4","Teddiursa":"4","Totodile":"5","Tyrogue":"4","Wooper":"5","Aipom":"5","Ariados":"3","Azumarill":"3","Bayleef":"4","Bellossom":"3","Corsola":"4","Croconaw":"4","Delibird":"3","Espeon":"U","Flaaffy":"4","Furret":"4","Gligar":"4","Hitmontop":"1","Jumpluff":"3","Ledian":"3","Murkrow":"3","Noctowl":"2","Pupitar":"S","Quagsire":"2","Quilava":"4","Qwilfish":"3","Shuckle":"4","Sneasel":"3","Stantler":"2","Umbreon":"U","Yanma":"3","Ampharos":"1","Crobat":"2","Donphan":"2","Feraligatr":"1","Forretress":"2","Girafarig":"2","Granbull":"2","Lanturn":"2","Magcargo":"1","Meganium":"1","Miltank":"1","Octillery":"3","Piloswine":"2","Politoed":"1","Porygon2":"2","Togetic":"3","Typhlosion":"1","Xatu":"2","Blissey":"S","Heracross":"2","Houndoom":"S","Kingdra":"S","Mantine":"1","Misdreavus":"S","Scizor":"L","Skarmory":"S","Slowking":"1","Steelix":"1","Sudowoodo":"L","Tyranitar":"M","Ursaring":"1","Wobbuffet":"U","Celebi":"C","Entei":"C","Ho-Oh":"C","Lugia":"C","Raikou":"C","Suicune":"C"};
+const SBOX={"C":["Celestial",2158,0.01],"M":["Mythic",1020,0.00],"L":["Legendary",667,0.01],"U":["Ultra Rare",556,0.01],"S":["Super Rare",556,0.02],"1":["Tier 1",556,0.02],"2":["Tier 2",556,0.03],"3":["Tier 3",556,0.04],"4":["Tier 4",556,0.06],"5":["Tier 5",556,0.06],"6":["Tier 6",556,0.06],"7":["Tier 7",551,0.06]};
+const SRANK={"7":1,"6":2,"5":3,"4":4,"3":5,"2":6,"1":7,"S":8,"U":9,"L":10,"M":11,"C":12};
+function sbox(nm){return SBOX[STIER[nm]]||null}
 const RESIST={"7":33.85,"6":48.08,"5":65.79,"4":99.89,"3":144.5,"2":223.37,"1":359.32,"S":520.05,"U":769.05};
 const TIERNAME={"S":"Super Rare","U":"Ultra Rare"};
 const BALLS=[["Poke",1],["Great",2],["Super",3],["Ultra",4],["Sigma",5]];
@@ -632,7 +644,7 @@ function multTxt(m){return m===.5?"½×":m===.25?"¼×":m+"×"}
 function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 
 /* ---------- estado ---------- */
-const st={q:"",rg:"all",extra:"all",sort:"num",types:new Set(),cmp:["Bulbasaur","Rhyhorn","Machop",""]};
+const st={fm:"n",q:"",rg:"all",extra:"all",sort:"num",types:new Set(),cmp:["Bulbasaur","Rhyhorn","Machop",""]};
 try{const s=JSON.parse(localStorage.getItem("sigmadex")||"null");if(s){if(Array.isArray(s.cmp))st.cmp=s.cmp.slice(0,4);if(s.view)setTimeout(()=>show(s.view),0)}}catch(e){}
 function save(view){try{localStorage.setItem("sigmadex",JSON.stringify({cmp:st.cmp,view:view||current}))}catch(e){}}
 
@@ -650,6 +662,7 @@ tf.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{const t=b.dataset.t;st
 document.getElementById("tclear").onclick=()=>{st.types.clear();tf.querySelectorAll("[data-t]").forEach(b=>b.setAttribute("aria-pressed","false"));renderDex()};
 document.getElementById("q").oninput=e=>{st.q=e.target.value.trim().toLowerCase();renderDex()};
 document.querySelectorAll("[data-rg]").forEach(b=>b.onclick=()=>{st.rg=b.dataset.rg;document.querySelectorAll("[data-rg]").forEach(x=>x.setAttribute("aria-pressed",x===b));renderDex()});
+document.querySelectorAll("[data-fm]").forEach(b=>b.onclick=()=>{st.fm=b.dataset.fm;document.querySelectorAll("[data-fm]").forEach(x=>x.setAttribute("aria-pressed",x===b));renderDex()});
 document.getElementById("extra").onchange=e=>{st.extra=e.target.value;renderDex()};
 document.getElementById("sort").onchange=e=>{st.sort=e.target.value;renderDex()};
 
@@ -670,7 +683,8 @@ function renderDex(){
     if(st.q&&!(p.name.toLowerCase().includes(st.q)||String(p.n)===st.q.replace(/^#?0*/,"")))return false;
     return true});
   const k=st.sort;
-  if(k==="cap")list.sort((a,b)=>(capPct(b.name,2)||0)-(capPct(a.name,2)||0)||a.n-b.n);
+  if(k==="shiny")list.sort((a,b)=>(SRANK[STIER[b.name]]||0)-(SRANK[STIER[a.name]]||0)||a.n-b.n);
+  else if(k==="cap")list.sort((a,b)=>(capPct(b.name,2)||0)-(capPct(a.name,2)||0)||a.n-b.n);
   else if(k==="resp")list.sort((a,b)=>((HUNTS[a.name]||[0,0,999])[2])-((HUNTS[b.name]||[0,0,999])[2])||a.n-b.n);
   else if(k==="xp")list.sort((a,b)=>(((b.route?+b.route[1]||0:-1))-((a.route?+a.route[1]||0:-1)))||a.n-b.n);
   else if(k!=="num")list.sort((a,b)=>b[k]-a[k]||a.n-b.n);
@@ -679,10 +693,10 @@ function renderDex(){
   if(!list.length){g.innerHTML=`<div class="empty">Nenhuma espécie com esses filtros. Limpe a busca ou os tipos.</div>`;return}
   g.innerHTML=list.map(p=>{const s=[p.hp,p.atk,p.def,p.spa,p.spd,p.spe],mx=Math.max(...s);
     return `<button class="card" data-n="${p.n}">
-      <div class="row1">${avatar(p)}<span class="nm">${esc(p.name)}</span><span class="num">#${String(p.n).padStart(3,"0")}</span></div>
+      <div class="row1">${avatar(p)}<span class="nm">${esc(p.name)}${st.fm==="s"?'<span style="color:#d9a21b"> ✦</span>':""}</span><span class="num">#${String(p.n).padStart(3,"0")}</span></div>
       <div class="chips">${p.types.map(t=>chip(t)).join("")}</div>
       <div class="mini" title="PS, Atq, Def, AtqEsp, DefEsp, Vel">${s.map(v=>`<i class="${v===mx?"hi":""}" style="height:${Math.max(8,v/2.55)}%"></i>`).join("")}</div>
-      <div class="meta">${p.team?`<span class="pill mine">seu time · Lv.${p.team.lv}</span>`:""}${p.route?`<span class="pill route">rota Lv.${p.route[0]} · ${p.route[1]} XP</span>`:""}${HUNTS[p.name]&&HUNTS[p.name][6]?`<span class="pill">⏰ ${esc(HUNTS[p.name][6])}</span>`:""}<span class="pill">total ${p.tot}</span>${["Raikou","Entei","Suicune","Lugia","Ho-Oh","Celebi"].includes(p.name)?`<span class="pill" title="Segundo a Wiki, as lendárias de Johto não chegam junto com a região">🔒 lendária · chega depois</span>`:""}${EV_NEXT[p.name]?(EV_NEXT[p.name].length>2?`<span class="pill pevo" title="${esc(EV_NEXT[p.name].map(e=>e.t+" · "+e.how).join(" / "))}">→ ${EV_NEXT[p.name].length} evoluções · ver ficha</span>`:EV_NEXT[p.name].map(e=>`<span class="pill pevo ${evoKind(e.how)}">→ ${esc(e.t+" · "+e.how)}${johtoLock(e.f,e.t)?" · 🔒 Johto":""}</span>`).join("")):""}</div>
+      <div class="meta">${st.fm==="s"&&sbox(p.name)?`<span class="pill shiny">✦ ${sbox(p.name)[0]}</span><span class="pill">1 a cada ${sbox(p.name)[1].toLocaleString("pt-BR")}</span><span class="pill">só Master Ball</span>`:""}${st.fm==="s"?"":""}${p.team?`<span class="pill mine">seu time · Lv.${p.team.lv}</span>`:""}${p.route?`<span class="pill route">rota Lv.${p.route[0]} · ${p.route[1]} XP</span>`:""}${HUNTS[p.name]&&HUNTS[p.name][6]?`<span class="pill">⏰ ${esc(HUNTS[p.name][6])}</span>`:""}<span class="pill">total ${p.tot}</span>${["Raikou","Entei","Suicune","Lugia","Ho-Oh","Celebi"].includes(p.name)?`<span class="pill" title="Segundo a Wiki, as lendárias de Johto não chegam junto com a região">🔒 lendária · chega depois</span>`:""}${EV_NEXT[p.name]?(EV_NEXT[p.name].length>2?`<span class="pill pevo" title="${esc(EV_NEXT[p.name].map(e=>e.t+" · "+e.how).join(" / "))}">→ ${EV_NEXT[p.name].length} evoluções · ver ficha</span>`:EV_NEXT[p.name].map(e=>`<span class="pill pevo ${evoKind(e.how)}">→ ${esc(e.t+" · "+e.how)}${johtoLock(e.f,e.t)?" · 🔒 Johto":""}</span>`).join("")):""}</div>
     </button>`}).join("");
   g.querySelectorAll(".card").forEach(c=>c.onclick=()=>openDetail(+c.dataset.n));
 }
@@ -757,6 +771,16 @@ function wireAval(p){const box=sheet.querySelector(".aval");if(!box)return;
 
 /* ---------- detalhe ---------- */
 const ov=document.getElementById("ov"),sheet=document.getElementById("sheet");let lastFocus=null;
+function shinyBlock(p){const b=sbox(p.name),t=TIER[p.name];if(!b)return"";const nb=t?(TIERNAME[t]||"Tier "+t):"—";
+  const up=(SRANK[STIER[p.name]]||0)-(SRANK[t]||0);
+  return `<div class="blk shinyblk"><h3>✦ Shiny</h3>
+    <div class="hgrid">
+      <div><span>Caixa do shiny</span><b>${b[0]}</b></div>
+      <div><span>Encontro</span><b>1 a cada ${b[1].toLocaleString("pt-BR")}</b></div>
+      <div><span>Captura</span><b>Master Ball</b></div>
+    </div>
+    <p class="note">Normal está na caixa <b>${nb}</b>; o shiny ${up>0?`sobe ${up} degrau${up>1?"s":""} (corpo mais forte)`:up<0?"fica abaixo":"fica na mesma caixa"}. Encontro cru, sem isca/boost/bestiário. Contra shiny, a Ultra Ball pega ${b[2]<0.01?"menos de 0,01%":"cerca de "+String(b[2]).replace(".",",")+"%"} — na prática, só a Master Ball (100%). Evoluir um shiny pede uma peça de evolução shiny além da receita normal; ele conta separado na Pokédex e é sempre preservado pela venda automática.</p>
+  </div>`}
 function huntBlock(p){const h=HUNTS[p.name],t=TIER[p.name];const tn=t?(TIERNAME[t]||"Tier "+t):"—";
   const balls=BALLS.map(([b,f])=>`<div class="hb"><span>${b}</span><b>${pctTxt(capPct(p.name,f))}%</b></div>`).join("");
   const capTxt=`<div class="hballs">${balls}<div class="hb"><span>Master</span><b>100%</b></div></div><p class="note">Chance por ball para a caixa <b>${tn}</b> desta espécie, sem bônus (conta da Wiki: força da ball ÷ (força + resistência)). O selo de raridade do corpo multiplica essa chance — quanto melhor o selo, mais difícil. Bônus de evento de captura (ex.: +100%) melhoram a chance.</p>`;
@@ -785,6 +809,7 @@ function openDetail(n){const p=DEX[n-1];lastFocus=document.activeElement;
     <a class="extlink" href="https://pokemondb.net/pokedex/${slug(p.name)}" target="_blank" rel="noopener noreferrer">ver imagem oficial ↗</a>
     <div class="chips">${p.types.map(t=>chip(t)).join("")}${p.team?`<span class="pill mine">seu time · Lv.${p.team.lv} · ${p.team.rar} · ${p.team.nat}</span>`:""}${p.route?`<span class="pill route">rota Lv.${p.route[0]} · ${p.route[1]} XP</span>`:""}</div>
 
+    ${shinyBlock(p)}
     ${evoBlock(p)}
 
     <div class="blk"><h3>Atributos base</h3>
@@ -871,15 +896,15 @@ function renderHunts(){const q=document.getElementById("hq").value.trim().toLowe
   let rows=Object.entries(HUNTS).map(([nm,h])=>({nm,lv:h[0],xp:h[1],rs:h[2],cp:h[3],df:h[4],rr:h[5],obs:h[6],ch:capPct(nm,ball)||0,p:BYNAME[nm.toLowerCase()]}))
     .filter(r=>(!q||r.nm.toLowerCase().includes(q))&&(!lv||r.lv===+lv)&&(!cp||r.cp===cp)&&(!se||r.obs));
   const CPO={"Média":1,"Difícil":2,"Severa":3,"Extrema":4};
-  const key={nm:r=>r.nm,lv:r=>r.lv,xp:r=>r.xp,rs:r=>r.rs,cp:r=>CPO[r.cp],df:r=>r.df,ch:r=>r.ch};
+  const key={nm:r=>r.nm,lv:r=>r.lv,xp:r=>r.xp,rs:r=>r.rs,cp:r=>CPO[r.cp],df:r=>r.df,ch:r=>r.ch,sh:r=>(sbox(r.nm)||[0,0])[1]};
   rows.sort((a,b)=>{const x=key[hst.k](a),y=key[hst.k](b);return (x<y?-1:x>y?1:0)*hst.dir||a.lv-b.lv||a.nm.localeCompare(b.nm)});
-  const cols=[["nm","Rota"],["lv","Nível"],["xp","XP"],["rs","Respawn"],["cp","Captura"],["df","Dificuldade"],["ch","Chance "+bn]];
+  const cols=[["nm","Rota"],["lv","Nível"],["xp","XP"],["rs","Respawn"],["cp","Captura"],["df","Dificuldade"],["ch","Chance "+bn],["sh","Shiny"]];
   document.getElementById("hcount").textContent=`${rows.length} de ${Object.keys(HUNTS).length} rotas`;
   document.getElementById("htab").innerHTML=`<thead><tr>${cols.map(([k,l])=>`<th data-k="${k}"${hst.k===k?` aria-sort="${hst.dir>0?"ascending":"descending"}"`:""}>${l}${hst.k===k?(hst.dir>0?" ▲":" ▼"):""}</th>`).join("")}</tr></thead><tbody>${rows.map(r=>`<tr>
     <td><button class="go" data-n="${r.p.n}">${avatar(r.p)}<span>${esc(r.nm)}${r.obs?`<span class="seas">⏰ ${esc(r.obs)}</span>`:""}</span></button></td>
     <td>${r.lv}</td><td>${r.xp.toLocaleString("pt-BR")}</td><td>${r.rs}</td><td class="txt"><b class="cap ${r.cp.normalize("NFD").replace(/[^a-z]/gi,"").toLowerCase()}">${r.cp}</b></td>
-    <td>×${String(r.df).replace(".",",")}</td><td>${pctTxt(r.ch)}%</td></tr>`).join("")}</tbody>`;
-  document.querySelectorAll("#htab th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(hst.k===k)hst.dir*=-1;else{hst.k=k;hst.dir=(k==="xp"||k==="ch")?-1:1}renderHunts()});
+    <td>×${String(r.df).replace(".",",")}</td><td>${pctTxt(r.ch)}%</td><td class="txt">${sbox(r.nm)?`1/${sbox(r.nm)[1]}<span class="seas">${sbox(r.nm)[0]}</span>`:"—"}</td></tr>`).join("")}</tbody>`;
+  document.querySelectorAll("#htab th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(hst.k===k)hst.dir*=-1;else{hst.k=k;hst.dir=(k==="xp"||k==="ch"||k==="sh")?-1:1}renderHunts()});
   document.querySelectorAll("#htab .go").forEach(b=>b.onclick=()=>openDetail(+b.dataset.n));}
 (function initCalc(){document.getElementById("cIvs").innerHTML=STK.map(x=>`<label>${STL[x]}<input type="number" min="0" max="31" inputmode="numeric" data-civ="${x}" placeholder="0–31"></label>`).join("");
   document.getElementById("cNat").innerHTML+=NAT_ORDER.map(n=>`<option>${n}</option>`).join("");
