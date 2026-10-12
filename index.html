@@ -226,7 +226,9 @@ table.tc tr:hover td,table.tc td.colhl{outline:1px solid var(--muted)}
     <div class="typefilter" id="tf" aria-label="Filtrar por tipo"></div>
     <div class="johto" id="johtoInfo" hidden>
       <h3>Johto no Sigma Project</h3>
-      <p><b>Como abre:</b> nível de treinador 200 <b>e</b> Pokédex de Kanto completa (135/135).</p>
+      <p><b>Ainda fechada no servidor.</b> Segundo a Wiki do jogo, a região abre para todos ao mesmo tempo, num dia marcado. Até lá, ninguém vê as rotas (espécie, XP, captura): elas aparecem só como silhuetas.</p>
+      <p><b>Duas portas:</b> (1) a região abrir no servidor; (2) você cumprir a exigência dela — nível de treinador 200 <b>e</b> espécies capturadas na Pokédex de Kanto (a meta aparece na carta de Johto, em Hunts). Só captura conta; ver não conta.</p>
+      <p><b>O que não vem junto:</b> as lendárias de Johto (Raikou, Entei, Suicune, Lugia, Ho-Oh e Celebi) chegam depois, com cenário próprio. Evoluções de Kanto para formas de Johto (ex.: Golbat → Crobat, Onix → Steelix) ficam travadas até a região abrir.</p>
       <p><b>89 rotas</b>, todas de nível alto. Toque numa faixa para ver o tamanho do pacote:</p>
       <div class="tiers" id="johtoTiers"></div>
       <p id="johtoTierNote">As espécies de cada rota ficam ocultas no jogo até a região abrir. Assim que forem reveladas, entram aqui com nível e XP.</p>
@@ -644,7 +646,7 @@ function renderDex(){
       <div class="row1">${avatar(p)}<span class="nm">${esc(p.name)}</span><span class="num">#${String(p.n).padStart(3,"0")}</span></div>
       <div class="chips">${p.types.map(t=>chip(t)).join("")}</div>
       <div class="mini" title="PS, Atq, Def, AtqEsp, DefEsp, Vel">${s.map(v=>`<i class="${v===mx?"hi":""}" style="height:${Math.max(8,v/2.55)}%"></i>`).join("")}</div>
-      <div class="meta">${p.team?`<span class="pill mine">seu time · Lv.${p.team.lv}</span>`:""}${p.route?`<span class="pill route">rota Lv.${p.route[0]} · ${p.route[1]} XP</span>`:""}<span class="pill">total ${p.tot}</span>${EV_NEXT[p.name]?(EV_NEXT[p.name].length>2?`<span class="pill pevo" title="${esc(EV_NEXT[p.name].map(e=>e.t+" · "+e.how).join(" / "))}">→ ${EV_NEXT[p.name].length} evoluções · ver ficha</span>`:EV_NEXT[p.name].map(e=>`<span class="pill pevo ${evoKind(e.how)}">→ ${esc(e.t+" · "+e.how)}</span>`).join("")):""}</div>
+      <div class="meta">${p.team?`<span class="pill mine">seu time · Lv.${p.team.lv}</span>`:""}${p.route?`<span class="pill route">rota Lv.${p.route[0]} · ${p.route[1]} XP</span>`:""}<span class="pill">total ${p.tot}</span>${["Raikou","Entei","Suicune","Lugia","Ho-Oh","Celebi"].includes(p.name)?`<span class="pill" title="Segundo a Wiki, as lendárias de Johto não chegam junto com a região">🔒 lendária · chega depois</span>`:""}${EV_NEXT[p.name]?(EV_NEXT[p.name].length>2?`<span class="pill pevo" title="${esc(EV_NEXT[p.name].map(e=>e.t+" · "+e.how).join(" / "))}">→ ${EV_NEXT[p.name].length} evoluções · ver ficha</span>`:EV_NEXT[p.name].map(e=>`<span class="pill pevo ${evoKind(e.how)}">→ ${esc(e.t+" · "+e.how)}${johtoLock(e.f,e.t)?" · 🔒 Johto":""}</span>`).join("")):""}</div>
     </button>`}).join("");
   g.querySelectorAll(".card").forEach(c=>c.onclick=()=>openDetail(+c.dataset.n));
 }
@@ -656,12 +658,13 @@ const EVO=EVO_RAW.split(";").map(x=>{const[a,r]=x.split(">");const i=r.indexOf("
 const EV_NEXT={},EV_PREV={};EVO.forEach(e=>{(EV_NEXT[e.f]=EV_NEXT[e.f]||[]).push(e);EV_PREV[e.t]=e});
 function evoRoot(n){let x=n;while(EV_PREV[x])x=EV_PREV[x].f;return x}
 function evoStages(n){const st=[[{nm:evoRoot(n),how:null}]];while(true){const nx=[];st[st.length-1].forEach(o=>(EV_NEXT[o.nm]||[]).forEach(e=>nx.push({nm:e.t,how:e.how})));if(!nx.length)break;st.push(nx)}return st}
+function johtoLock(f,t){const a=BYNAME[(f||"").toLowerCase()],b=BYNAME[(t||"").toLowerCase()];return !!(a&&b&&a.n<=151&&b.n>151)}
 function evoKind(h){return /Troca/.test(h)?"troca":/Pedra/.test(h)?"pedra":/Amizade/.test(h)?"amizade":"nivel"}
 function nextEvoTxt(nm){const n=EV_NEXT[nm];if(!n)return"";return n.map(e=>`${e.t} (${e.how})`).join(" ou ")}
 function slug(nm){return nm.toLowerCase().replace("nidoran female","nidoran-f").replace("nidoran male","nidoran-m").replace(/[.']/g,"").replace(/\s+/g,"-")}
 function avatar(p){const c1=COLOR[p.types[0]],c2=COLOR[p.types[1]||p.types[0]];const ini=p.name.replace(/[^A-Za-z]/g,"").slice(0,2);return `<span class="ava" style="background:linear-gradient(135deg,${c1},${c2})" aria-hidden="true">${ini}</span>`}
 function evoBlock(p){const st=evoStages(p.name);if(st.length===1)return `<div class="blk"><h3>Evoluções</h3><p class="note">${esc(p.name)} não evolui (na franquia oficial).</p></div>`;
-  return `<div class="blk"><h3>Evoluções</h3><div class="evo">${st.map((stage,i)=>`${i?'<span class="earr" aria-hidden="true">→</span>':""}<div class="estage">${stage.map(o=>{const q=BYNAME[o.nm.toLowerCase()];if(!q)return"";return `<button class="enode${o.nm===p.name?" cur":""}${q.team?" mine":""}" data-go="${q.n}">${avatar(q)}<span class="en">${esc(o.nm)}</span>${o.how?`<span class="ehow ${evoKind(o.how)}">${esc(o.how)}</span>`:`<span class="ehow base">base</span>`}</button>`}).join("")}</div>`).join("")}</div>
+  return `<div class="blk"><h3>Evoluções</h3><div class="evo">${st.map((stage,i)=>`${i?'<span class="earr" aria-hidden="true">→</span>':""}<div class="estage">${stage.map(o=>{const q=BYNAME[o.nm.toLowerCase()];if(!q)return"";return `<button class="enode${o.nm===p.name?" cur":""}${q.team?" mine":""}" data-go="${q.n}">${avatar(q)}<span class="en">${esc(o.nm)}</span>${o.how?`<span class="ehow ${evoKind(o.how)}">${esc(o.how)}${EV_PREV[o.nm]&&johtoLock(EV_PREV[o.nm].f,o.nm)?" · 🔒 Johto":""}</span>`:`<span class="ehow base">base</span>`}</button>`}).join("")}</div>`).join("")}</div>
   <p class="note">Toque num estágio para abrir a ficha. Cada evolução é uma espécie nova na Pokédex. Métodos da franquia oficial — <b>troca</b>, item e amizade podem funcionar diferente no Sigma; confira no Laboratório.</p></div>`}
 
 
